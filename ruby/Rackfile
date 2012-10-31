@@ -1,0 +1,6 @@
+require 'rspec/core/rack_task'
+
+Rspec::Core::RackTask.new(:spec)
+
+task :default => :spec
+
