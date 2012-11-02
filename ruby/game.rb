@@ -10,7 +10,8 @@ class Game
 
     @y_size.times do |y|
       @x_size.times do |x| 
-        if cell_alive?(y, x) && has_2_alive_neighbors?(y, x)
+        if (cell_alive?(y, x) && has_2_alive_neighbors?(y, x)) ||
+	has_3_alive_neighbors?(y, x)
           set_alive(new_cells, y, x)
         end
       end
@@ -43,17 +44,40 @@ class Game
     x < @x_size - 1 && cell_alive?(y, x + 1)
   end
 
+  def up_left_cell_alive?(y, x)
+    y > 0 && x > 0 && cell_alive?(y - 1, x - 1)
+  end
+
+  def up_right_cell_alive?(y, x)
+    y > 0 && x < @x_size - 1 && cell_alive?(y - 1, x + 1)
+  end
+
+  def down_left_cell_alive?(y, x)
+    y < @y_size - 1 && x > 0 && cell_alive?(y + 1, x - 1)
+  end
+
+  def down_right_cell_alive?(y, x)
+    y < @y_size - 1 && x < @x_size - 1 && cell_alive?(y + 1, x + 1)
+  end
+
   def alive_neighbors(y, x)
     alive_neighbors = 0
     alive_neighbors += 1 if up_cell_alive?(y, x) 
     alive_neighbors += 1 if down_cell_alive?(y, x) 
     alive_neighbors += 1 if left_cell_alive?(y, x) 
     alive_neighbors += 1 if right_cell_alive?(y, x)
+    alive_neighbors += 1 if up_left_cell_alive?(y, x) 
+    alive_neighbors += 1 if up_right_cell_alive?(y, x) 
+    alive_neighbors += 1 if down_left_cell_alive?(y, x) 
+    alive_neighbors += 1 if down_right_cell_alive?(y, x) 
     alive_neighbors
- end
+  end
 
   def has_2_alive_neighbors?(y, x)
     alive_neighbors(y, x) == 2
   end
 
+  def has_3_alive_neighbors?(y, x)
+    alive_neighbors(y, x) == 3 
+  end
 end
