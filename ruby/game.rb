@@ -1,83 +1,23 @@
+require_relative 'cells_grid.rb'
+
 class Game
-  def initialize(cells)
-    @cells = cells
-    @y_size = cells.size
-    @x_size = cells[0].size
-  end
+  attr_accessor :cells_grid
 
-  def next_stage
-    new_cells = @y_size.times.map {[0] * @x_size}
+  def next_step
+    empty_grid = cells_grid.y_size.times.map {[0] * cells_grid.x_size}
+    @new_cells_grid = CellsGrid.new(empty_grid)
 
-    @y_size.times do |y|
-      @x_size.times do |x| 
-        if (cell_alive?(y, x) && has_2_alive_neighbors?(y, x)) ||
-	has_3_alive_neighbors?(y, x)
-          set_alive(new_cells, y, x)
-        end
+    cells_grid.y_size.times do |y|
+      cells_grid.x_size.times do |x|
+        @new_cells_grid.set_alive(y, x) if should_revive?(y, x)
       end
     end
-  
-    return new_cells
+
+    @cells_grid = @new_cells_grid
   end
 
-  def set_alive(cells, y, x)
-    cells[y][x] = 1
-  end
-
-  def cell_alive?(y, x)
-    @cells[y][x] == 1
-  end
-
-  def up_cell_alive?(y, x)
-    y > 0 && cell_alive?(y - 1, x)
-  end
-
-  def down_cell_alive?(y, x)
-    y < @y_size - 1 && cell_alive?(y + 1, x)
-  end
-
-  def left_cell_alive?(y, x)
-    x > 0 && cell_alive?(y, x - 1)
-  end
-
-  def right_cell_alive?(y, x)
-    x < @x_size - 1 && cell_alive?(y, x + 1)
-  end
-
-  def up_left_cell_alive?(y, x)
-    y > 0 && x > 0 && cell_alive?(y - 1, x - 1)
-  end
-
-  def up_right_cell_alive?(y, x)
-    y > 0 && x < @x_size - 1 && cell_alive?(y - 1, x + 1)
-  end
-
-  def down_left_cell_alive?(y, x)
-    y < @y_size - 1 && x > 0 && cell_alive?(y + 1, x - 1)
-  end
-
-  def down_right_cell_alive?(y, x)
-    y < @y_size - 1 && x < @x_size - 1 && cell_alive?(y + 1, x + 1)
-  end
-
-  def alive_neighbors(y, x)
-    alive_neighbors = 0
-    alive_neighbors += 1 if up_cell_alive?(y, x) 
-    alive_neighbors += 1 if down_cell_alive?(y, x) 
-    alive_neighbors += 1 if left_cell_alive?(y, x) 
-    alive_neighbors += 1 if right_cell_alive?(y, x)
-    alive_neighbors += 1 if up_left_cell_alive?(y, x) 
-    alive_neighbors += 1 if up_right_cell_alive?(y, x) 
-    alive_neighbors += 1 if down_left_cell_alive?(y, x) 
-    alive_neighbors += 1 if down_right_cell_alive?(y, x) 
-    alive_neighbors
-  end
-
-  def has_2_alive_neighbors?(y, x)
-    alive_neighbors(y, x) == 2
-  end
-
-  def has_3_alive_neighbors?(y, x)
-    alive_neighbors(y, x) == 3 
+  def should_revive?(y, x)
+    @cells_grid.has_3_alive_neighbors?(y, x) ||
+    (@cells_grid.alive?(y, x) && @cells_grid.has_2_alive_neighbors?(y, x))
   end
 end
